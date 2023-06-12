@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT | 5000;
@@ -32,29 +32,52 @@ async function run() {
     //user
 
     //create user
-    app.post('/user', async(req, res) => {
-        const user = req.body;
-        const query = {email: user.email}
-        const consisting = await usersCollection.findOne(query);
-        if(consisting){
-            return res.send({message: "User Exist"})
-        }
-        const result = await usersCollection.insertOne(user)
-        res.send(result)
+    app.post('/user', async (req, res) => {
+      const user = req.body;
+      const query = { email: user.email }
+      const consisting = await usersCollection.findOne(query);
+      if (consisting) {
+        return res.send({ message: "User Exist" })
+      }
+      const result = await usersCollection.insertOne(user)
+      res.send(result)
     })
 
     //get all users
-    app.get('/users', async(req, res) => {
-        const result = await usersCollection.find().toArray();
-        res.send(result)
+    app.get('/users', async (req, res) => {
+      const result = await usersCollection.find().toArray();
+      res.send(result)
+    })
+
+    // delete user 
+    app.delete('/user/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await usersCollection.deleteOne(query);
+      res.send(result)
+    })
+
+    // update user role 
+    app.put('/user', async (req, res) => {
+      const id = req.body.id;
+      const role = {
+        $set: {
+          role: req.body.role
+        }
+      }
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const result = await usersCollection.updateOne(filter, role, options);
+
+      res.send(result)
     })
 
     //get user info
-    app.get('/user/:email', async(req, res) =>{
-        const email = req.params.email;
-        const query = {email: email};
-        const result = await usersCollection.findOne(query);
-        res.send(result)
+    app.get('/user/:uid', async (req, res) => {
+      const uid = req.params.uid;
+      const query = { uid: uid };
+      const result = await usersCollection.findOne(query);
+      res.send(result)
     })
 
 
@@ -71,9 +94,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Summer School running')
+  res.send('Summer School running')
 })
 
 app.listen(port, () => {
-    console.log("Summer Camp is running on Port: ", port);
+  console.log("Summer Camp is running on Port: ", port);
 })
