@@ -43,9 +43,29 @@ async function run() {
     })
 
     // pending classes
-    app.get('/classes/pending', async(req, res) =>{
-      const query = {status: 'pending'};
+    app.get('/classes', async(req, res) =>{
+      const result = await classesCollection.find().toArray();
+      res.send(result)
+    })
+
+
+    // pending classes
+    app.get('/classes/approved', async(req, res) =>{
+      const query = {status: 'approved'};
       const result = await classesCollection.find(query).toArray();
+      res.send(result)
+    })
+
+    // update status 
+    app.patch('/classes/update', async(req, res) =>{
+      const id = req.body.id;
+      const filter = {_id: new ObjectId(id)}
+      const status = {
+        $set: {
+          status: req.body.status
+        }
+      }
+      const result = await classesCollection.updateOne(filter, status)
       res.send(result)
     })
 
