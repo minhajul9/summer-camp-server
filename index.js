@@ -34,7 +34,7 @@ async function run() {
     // classes
 
     //create class
-    app.post('/classes', async(req, res) => {
+    app.post('/classes', async (req, res) => {
       const newClass = req.body;
       // console.log(req.body);
       const result = await classesCollection.insertOne(newClass);
@@ -43,23 +43,39 @@ async function run() {
     })
 
     // pending classes
-    app.get('/classes', async(req, res) =>{
+    app.get('/classes', async (req, res) => {
       const result = await classesCollection.find().toArray();
       res.send(result)
     })
 
 
     // pending classes
-    app.get('/classes/approved', async(req, res) =>{
-      const query = {status: 'approved'};
+    app.get('/classes/approved', async (req, res) => {
+      const query = { status: 'approved' };
       const result = await classesCollection.find(query).toArray();
       res.send(result)
     })
 
+    // select class and store id to user id
+    app.put('/class/:id/:classId', async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) }
+      const selectedClass = req.params.classId;
+      const user = await usersCollection.findOne(query);
+      const selectedClasses = user.selectedClasses
+      selectedClasses.push(selectedClass)
+      const updateUser = {
+        $set: {
+          selectedClasses: selectedClasses
+        }
+      }
+      const result = await usersCollection.updateOne(query, updateUser)
+      res.send(result)
+    })
+
     // update status 
-    app.patch('/classes/update', async(req, res) =>{
+    app.patch('/classes/update', async (req, res) => {
       const id = req.body.id;
-      const filter = {_id: new ObjectId(id)}
+      const filter = { _id: new ObjectId(id) }
       const status = {
         $set: {
           status: req.body.status
@@ -87,6 +103,13 @@ async function run() {
     //get all users
     app.get('/users', async (req, res) => {
       const result = await usersCollection.find().toArray();
+      res.send(result)
+    })
+
+    // get instructors
+    app.get('/users/instructor', async (req, res) => {
+      const query = {role: 'Instructor'}
+      const result = await usersCollection.find(query).toArray();
       res.send(result)
     })
 
