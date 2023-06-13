@@ -27,7 +27,28 @@ async function run() {
     await client.connect();
 
     const database = client.db('summerCamp');
-    const usersCollection = database.collection('users')
+    const usersCollection = database.collection('users');
+    const classesCollection = database.collection('classes');
+
+
+    // classes
+
+    //create class
+    app.post('/classes', async(req, res) => {
+      const newClass = req.body;
+      // console.log(req.body);
+      const result = await classesCollection.insertOne(newClass);
+      res.send(result)
+
+    })
+
+    // pending classes
+    app.get('/classes/pending', async(req, res) =>{
+      const query = {status: 'pending'};
+      const result = await classesCollection.find(query).toArray();
+      res.send(result)
+    })
+
 
     //user
 
