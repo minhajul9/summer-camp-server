@@ -56,6 +56,12 @@ async function run() {
       res.send(result)
     })
 
+    //popular classes 
+    app.get('/classes/popular', async(req, res) => {
+      const result = await classesCollection.find().sort({admittedStudents:1}).limit(6).toArray();
+      res.send(result)
+    })
+
 
     // get classes of instructor
     app.post('/classes/instructor', async(req, res) =>{
