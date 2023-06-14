@@ -141,6 +141,19 @@ async function run() {
       res.send(result)
     })
 
+    // give Feedback
+    app.patch('/classes/feedback', async (req, res) => {
+      const id = req.body.id;
+      const filter = { _id: new ObjectId(id) }
+      const feedback = {
+        $set: {
+          feedback: req.body.feedback
+        }
+      }
+      const result = await classesCollection.updateOne(filter, feedback)
+      res.send(result)
+    })
+
 
     //user
 
