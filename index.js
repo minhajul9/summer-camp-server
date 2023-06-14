@@ -97,6 +97,20 @@ async function run() {
       const result = await classesCollection.find({ _id: {$in : oids}}).toArray();
       res.send(result)
     })
+    
+
+    // get enrolled classes 
+    app.get('/classes/enrolled/:id', async(req, res) => {
+      const query = { _id: new ObjectId(req.params.id)};
+      const user = await usersCollection.findOne(query);
+      const classes = user.enrolledClasses;
+      const oids = [];
+      classes.forEach(function(item){
+      oids.push(new ObjectId(item));
+      });
+      const result = await classesCollection.find({ _id: {$in : oids}}).toArray();
+      res.send(result)
+    })
 
     // select class and store id to user id
     app.put('/class/:id/:classId', async (req, res) => {
@@ -131,7 +145,7 @@ async function run() {
     //user
 
     //create user
-    app.post('/user', async (req, res) => {
+    app.post('/users', async (req, res) => {
       const user = req.body;
       const query = { email: user.email }
       const consisting = await usersCollection.findOne(query);
@@ -164,7 +178,7 @@ async function run() {
     })
 
     // delete user 
-    app.delete('/user/:id', async (req, res) => {
+    app.delete('/users/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await usersCollection.deleteOne(query);
@@ -172,7 +186,7 @@ async function run() {
     })
 
     // update user role 
-    app.put('/user', async (req, res) => {
+    app.put('/users', async (req, res) => {
       const id = req.body.id;
       const role = {
         $set: {
@@ -187,7 +201,7 @@ async function run() {
     })
 
     //get user info
-    app.get('/user/:uid', async (req, res) => {
+    app.get('/users/:uid', async (req, res) => {
       const uid = req.params.uid;
       const query = { uid: uid };
       const result = await usersCollection.findOne(query);
