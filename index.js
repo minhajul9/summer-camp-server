@@ -24,7 +24,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    client.connect();
 
     const database = client.db('summerCamp');
     const usersCollection = database.collection('users');
@@ -42,17 +42,43 @@ async function run() {
 
     })
 
-    // pending classes
+    // classes
     app.get('/classes', async (req, res) => {
       const result = await classesCollection.find().toArray();
       res.send(result)
     })
 
 
-    // pending classes
+    // approved classes
     app.get('/classes/approved', async (req, res) => {
       const query = { status: 'approved' };
       const result = await classesCollection.find(query).toArray();
+      res.send(result)
+    })
+
+    app.put('/classes/:id', async(req, res) => {
+      const selectedClasses = req.body.remainingIds;
+      // console.log(selectedClasses);
+      const filter = { _id: new ObjectId(req.params.id)};
+      const updateDoc = {
+        $set: {
+          selectedClasses: selectedClasses
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updateDoc)
+      res.send(result);
+    })
+
+    // get selected classes 
+    app.get('/classes/:id', async(req, res) => {
+      const query = { _id: new ObjectId(req.params.id)};
+      const user = await usersCollection.findOne(query);
+      const classes = user.selectedClasses;
+      const oids = [];
+      classes.forEach(function(item){
+      oids.push(new ObjectId(item));
+      });
+      const result = await classesCollection.find({ _id: {$in : oids}}).toArray();
       res.send(result)
     })
 
