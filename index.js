@@ -56,6 +56,16 @@ async function run() {
       res.send(result)
     })
 
+
+    // get classes of instructor
+    app.post('/classes/instructor', async(req, res) =>{
+      const email = req.body.email;
+      const query = {instructorEmail: email};
+      const result = await classesCollection.find(query).toArray();
+      res.send(result)
+    })
+
+    // update selected classes
     app.put('/classes/:id', async(req, res) => {
       const selectedClasses = req.body.remainingIds;
       // console.log(selectedClasses);
