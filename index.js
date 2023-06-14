@@ -155,6 +155,14 @@ async function run() {
       res.send(result)
     })
 
+    // popular instructors
+    app.get('/instructors/popular', async(req, res) => {
+      const query = {role: "Instructor"}
+      const result = await usersCollection.find(query).sort({
+        numberOfStudents:1}).limit(6).toArray();
+      res.send(result)
+    })
+
     // delete user 
     app.delete('/user/:id', async (req, res) => {
       const id = req.params.id;
